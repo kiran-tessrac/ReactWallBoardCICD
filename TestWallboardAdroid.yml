@@ -17,7 +17,7 @@ variables:
   - name: minor
     value: 1
   - name : versioncode
-    value: 2
+    value: 3
   - name: androidVersionName
     value : 0
   
@@ -35,48 +35,90 @@ pool:
 
 
 steps:
- - bash: echo $(deployedVersionCode)
-# - task: NodeTool@0
-#   displayName: 'Install Node'
-#   inputs:
-#     versionSpec: '12.16.1'
+- task: NodeTool@0
+  inputs:
+    versionSpec: '12.18.3'
+    checkLatest: true
+  displayName: 'Install Node'
 
-# - script: npm install  
-#   displayName: 'Install node dependencies'
+- script: npm cache clean --force 
+  displayName: "Clear Cache"
 
-# - script: npx jetify
-#   displayName: 'Install jetify' 
+- script: npm install --verbose sharp
+  displayName: 'Install node dependencies'
 
-# - script: npm install react-native-locale-listener
-#   displayName: "Install native locale"  
+- script: npm install react-native
+  displayName: "install react native"
 
-# - task: Gradle@2
-#   inputs:
-#     workingDirectory: 'android/'
-#     gradleWrapperFile: 'android/gradlew'
-#     gradleOptions: '-Xmx3072m'
-#     publishJUnitResults: false
-#     testResultsFiles: '**/TEST-*.xml'
-#     tasks: 'bundleRelease'
+- script: npm install sharp
+  displayName: "install sharp"
 
-# - task: AndroidSigning@3
-#   inputs:
-#     apkFiles: '**/*.aab'      
-#     apksignerKeystoreFile: 'WallboardMachines.jks'
-#     apksign: true
-#     apksignerArguments: --min-sdk-version 23
-#     apksignerKeystorePassword: '$(jarsignerKeystorePassword)'
-#     apksignerKeystoreAlias: '$(MYAPP_UPLOAD_KEY_ALIAS)'
-#     apksignerKeyPassword: '$(jarsignerKeyPassword)'
-#     zipalign: false
+- script: yarn add sharp
+  displayName: "add sharp"
 
-# - script: mv android/app/build/outputs/bundle/release/app-release.aab WallBoard$(Build.BuildNumber).aab
-#   displayName: 'Rename apk'
-# - task: PublishBuildArtifacts@1
-#   inputs:
-#     pathtoPublish: WallBoard$(Build.BuildNumber).aab
-#     artifactName: drop
-#     publishLocation: 'container'
+- task: ReactNativeBundle@0
+  inputs:
+    platform: 'ios'
+    entryFile: 'index.js'
+    assetsDest: 'ios'
+    devFlag: false  
+- task: CocoaPods@0
+  displayName: "Install CocoaPods dependencies"
+  inputs:
+    workingDirectory: 'ios'
+    forceRepoUpdate: true
+
+- task: InstallAppleCertificate@2
+  inputs:
+   certSecureFile: 'ser.p12'
+   certPwd: '$(p12Password)'
+   keychain: 'temp'
+ 
+
+- task: InstallAppleProvisioningProfile@1
+  inputs:
+   provisioningProfileLocation: 'secureFiles'
+   provProfileSecureFile: 'WallBoard.mobileprovision'
+
+
+- task: ios-bundle-version@1
+  displayName: "Set versions"
+  inputs:
+    sourcePath: 'ios/wallBoard/Info.plist'
+    versionCodeOption: 'buildid'
+    versionCode: '$(deployedVersionCode)'
+    versionName: '$(major).$(minor).$(revision)'
+    printFile: true
+
+- task: Gradle@2
+  inputs:
+    workingDirectory: 'android/'
+    options: '-PversionName=$(major).$(minor).$(androidVersionName) -PversionCode=$(deployedVersionCode)'
+    gradleWrapperFile: 'android/gradlew'
+    gradleOptions: '-Xmx3072m'
+    publishJUnitResults: false
+    testResultsFiles: '**/TEST-*.xml'
+    tasks: 'bundleRelease'
+
+- task: AndroidSigning@3
+  inputs:
+    apkFiles: '**/*.aab'      
+    apksignerKeystoreFile: 'WallboardMachines.jks'
+    apksign: true
+    
+    apksignerArguments: --min-sdk-version 23
+    apksignerKeystorePassword: '$(jarsignerKeystorePassword)'
+    apksignerKeystoreAlias: '$(MYAPP_UPLOAD_KEY_ALIAS)'
+    apksignerKeyPassword: '$(jarsignerKeyPassword)'
+    zipalign: false
+
+- script: mv android/app/build/outputs/bundle/release/app-release.aab WallBoard$(Build.BuildNumber).aab
+  displayName: 'Rename apk'
+- task: PublishBuildArtifacts@1
+  inputs:
+    pathtoPublish: WallBoard$(Build.BuildNumber).aab
+    artifactName: drop
+    publishLocation: 'container'
  
 
 
