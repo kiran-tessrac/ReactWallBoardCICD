@@ -122,3 +122,31 @@ steps:
  
 
 
+
+- task: Xcode@5
+  inputs:
+    actions: 'build'
+    configuration: '$(configuration)'
+    sdk: '$(sdk)'
+    xcWorkspacePath: 'ios/wallBoard.xcworkspace'
+    scheme: 'wallBoard'
+    xcodeVersion: 'specifyPath'
+    xcodeDeveloperDir: '/Applications/Xcode_11.3.app/Contents/Developer'
+    packageApp: true
+    signingOption: 'manual'
+    # signingIdentity: 'Apple Development: Smart Team (2V754HBUDQ)'
+    signingIdentity: '$(APPLE_CERTIFICATE_SIGNING_IDENTITY)'
+    provisioningProfileUuid: '$(APPLE_PROV_PROFILE_UUID)'
+    
+
+- task: CopyFiles@2
+  inputs:
+    contents: '**/*.ipa'
+    targetFolder: '$(build.artifactStagingDirectory)'
+    overWrite: true
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    pathtoPublish: '$(build.artifactStagingDirectory)/output/$(sdk)/$(configuration)' 
+    artifactName: 'drop' 
+    publishLocation: 'Container'
