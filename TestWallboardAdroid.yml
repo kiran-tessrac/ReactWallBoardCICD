@@ -28,7 +28,8 @@ pool:
   vmImage: 'macOS-10.14'
 
 
-# steps:
+steps:
+ - bash: echo '$(name)'
 # - task: NodeTool@0
 #   displayName: 'Install Node'
 #   inputs:
