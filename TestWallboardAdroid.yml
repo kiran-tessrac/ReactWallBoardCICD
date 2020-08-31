@@ -15,7 +15,7 @@ variables:
   - name: major 
     value: 1
   - name: minor
-    value: 0
+    value: 1
   - name : versioncode
     value: 0
   - name: offset
