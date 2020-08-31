@@ -17,7 +17,7 @@ variables:
   - name: minor
     value: 1
   - name : versioncode
-    value: 0
+    value: 2
   - name: androidVersionName
     value : 0
   
