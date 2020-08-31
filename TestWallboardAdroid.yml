@@ -12,60 +12,64 @@ variables:
     value: 'Release'
   - name: sdk
     value: 'iphoneos'
-
+  - name: major 
+    value: 1
+  - name: minor
+    value: 0
+  - name : versioncode
+    value: 0
+  - name: offset
+    value: 0
+  - name: revision
+    value : $[counter(format('{0}.{1}', variables['major'],variables['minor']),0)]
+  
+name: '$(major).$(minor).$(revision)'
 pool:
   vmImage: 'macOS-10.14'
 
 
-steps:
-- task: NodeTool@0
-  displayName: 'Install Node'
-  inputs:
-    versionSpec: '12.16.1'
-
-- script: npm install  
-  displayName: 'Install node dependencies'
-
-- script: npx jetify
-  displayName: 'Install jetify' 
-
-- script: npm install react-native-locale-listener
-  displayName: "Install native locale"
-  
-# - task: android-manifest-version@1
+# steps:
+# - task: NodeTool@0
+#   displayName: 'Install Node'
 #   inputs:
-#     sourcePath: 'android/app/src/main/AndroidManifest.xml'
-#     versionCodeOption: 'buildid'
-#     versionCode: '$(Build.BuildId)'
-#     versionCodeOffset: '24'
-#     printFile: true
-- task: Gradle@2
-  inputs:
-    workingDirectory: 'android/'
-    gradleWrapperFile: 'android/gradlew'
-    gradleOptions: '-Xmx3072m'
-    publishJUnitResults: false
-    testResultsFiles: '**/TEST-*.xml'
-    tasks: 'bundleRelease'
+#     versionSpec: '12.16.1'
 
-- task: AndroidSigning@3
-  inputs:
-    apkFiles: '**/*.aab'      
-    apksignerKeystoreFile: 'WallboardMachines.jks'
-    apksign: true
-    apksignerArguments: --min-sdk-version 23
-    apksignerKeystorePassword: '$(jarsignerKeystorePassword)'
-    apksignerKeystoreAlias: '$(MYAPP_UPLOAD_KEY_ALIAS)'
-    apksignerKeyPassword: '$(jarsignerKeyPassword)'
-    zipalign: false
+# - script: npm install  
+#   displayName: 'Install node dependencies'
 
-- script: mv android/app/build/outputs/bundle/release/app-release.aab WallBoard$(Build.BuildNumber).aab
-  displayName: 'Rename apk'
-- task: PublishBuildArtifacts@1
-  inputs:
-    pathtoPublish: WallBoard$(Build.BuildNumber).aab
-    artifactName: drop
-    publishLocation: 'container'
+# - script: npx jetify
+#   displayName: 'Install jetify' 
+
+# - script: npm install react-native-locale-listener
+#   displayName: "Install native locale"  
+
+# - task: Gradle@2
+#   inputs:
+#     workingDirectory: 'android/'
+#     gradleWrapperFile: 'android/gradlew'
+#     gradleOptions: '-Xmx3072m'
+#     publishJUnitResults: false
+#     testResultsFiles: '**/TEST-*.xml'
+#     tasks: 'bundleRelease'
+
+# - task: AndroidSigning@3
+#   inputs:
+#     apkFiles: '**/*.aab'      
+#     apksignerKeystoreFile: 'WallboardMachines.jks'
+#     apksign: true
+#     apksignerArguments: --min-sdk-version 23
+#     apksignerKeystorePassword: '$(jarsignerKeystorePassword)'
+#     apksignerKeystoreAlias: '$(MYAPP_UPLOAD_KEY_ALIAS)'
+#     apksignerKeyPassword: '$(jarsignerKeyPassword)'
+#     zipalign: false
+
+# - script: mv android/app/build/outputs/bundle/release/app-release.aab WallBoard$(Build.BuildNumber).aab
+#   displayName: 'Rename apk'
+# - task: PublishBuildArtifacts@1
+#   inputs:
+#     pathtoPublish: WallBoard$(Build.BuildNumber).aab
+#     artifactName: drop
+#     publishLocation: 'container'
  
 
 
