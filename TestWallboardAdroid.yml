@@ -19,7 +19,7 @@ variables:
   - name : versioncode
     value: 0
   - name: androidVersionCode
-    value: $[counter(variables['versioncode']),50)]
+    value: $[counter(variables['versioncode'], 50)]
   - name: offset
     value: 0
   - name: revision
