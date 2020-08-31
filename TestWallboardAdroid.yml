@@ -17,7 +17,7 @@ variables:
   - name: minor
     value: 1
   - name : versioncode
-    value: 3
+    value: 4
   - name: androidVersionName
     value : 0
   
@@ -99,6 +99,7 @@ steps:
     publishJUnitResults: false
     testResultsFiles: '**/TEST-*.xml'
     tasks: 'bundleRelease'
+    javaHomeOption: 'JDKVersion'
 
 - task: AndroidSigning@3
   inputs:
