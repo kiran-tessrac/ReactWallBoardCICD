@@ -18,6 +18,8 @@ variables:
     value: 1
   - name : versioncode
     value: 0
+  - name: androidVersionCode
+    value: $[counter(variables['versioncode']),50)]
   - name: offset
     value: 0
   - name: revision
@@ -29,7 +31,7 @@ pool:
 
 
 steps:
- - bash: echo '$(name)'
+ - bash: echo 'androidVersionCode'
 # - task: NodeTool@0
 #   displayName: 'Install Node'
 #   inputs:
